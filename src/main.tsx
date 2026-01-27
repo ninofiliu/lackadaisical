@@ -1,12 +1,4 @@
-// import { StrictMode } from "react";
-// import { createRoot } from "react-dom/client";
 import "./main.css";
-
-// createRoot(document.getElementById("root")!).render(
-//   <StrictMode>
-//     <></>
-//   </StrictMode>,
-// );
 
 import {
   ALL_FORMATS,
@@ -20,12 +12,34 @@ console.log("waiting for click");
 await new Promise((r) => document.addEventListener("click", r, { once: true }));
 console.log("clicked");
 
-const audio = document.createElement("audio");
-audio.src = "/baseline/DRGQ1VtCVz9.mp4";
-audio.controls = true;
-audio.loop = true;
-audio.autoplay = true;
-document.body.append(audio);
+const audioContext = new AudioContext();
+const audioResponse = await fetch("/baseline/DRGQ1VtCVz9.mp4");
+const audioArrayBuffer = await audioResponse.arrayBuffer();
+const audioBuffer = await audioContext.decodeAudioData(audioArrayBuffer);
+
+let audioSource: AudioBufferSourceNode | null = null;
+let audioStartTime = 0;
+let audioStartOffset = 0;
+
+function playAudioFrom(time: number) {
+  if (audioSource) {
+    audioSource.stop();
+  }
+  audioSource = audioContext.createBufferSource();
+  audioSource.buffer = audioBuffer;
+  audioSource.loop = true;
+  audioSource.connect(audioContext.destination);
+  audioSource.start(0, time);
+  audioStartTime = audioContext.currentTime;
+  audioStartOffset = time;
+}
+
+function getCurrentAudioTime() {
+  if (!audioSource) return 0;
+  return audioStartOffset + (audioContext.currentTime - audioStartTime);
+}
+
+playAudioFrom(0);
 
 const input = new Input({
   formats: ALL_FORMATS,
@@ -65,13 +79,9 @@ const decoder = new VideoDecoder({
 decoder.configure(decoderConfig);
 
 let i = 0;
-// let incr = 1;
 const presses = {} as Record<string, boolean>;
 window.addEventListener("keydown", (evt) => {
-  // if (evt.key === "ArrowUp") incr += 1 / 8;
-  // if (evt.key === "ArrowDown") incr -= 1 / 8;
   presses[evt.key] = true;
-  // console.log(incr);
 });
 window.addEventListener("keyup", (evt) => {
   presses[evt.key] = false;
@@ -82,9 +92,9 @@ while (true) {
   const pkt = pkts[pkti];
 
   const isMoshing = presses["p"] || presses["o"] || presses["u"];
-  const desiredTime = ((i % pkts.length) / pkts.length) * audio.duration;
+  const desiredTime = ((i % pkts.length) / pkts.length) * audioBuffer.duration;
   if (isMoshing || pkti == 0) {
-    audio.currentTime = desiredTime;
+    playAudioFrom(desiredTime);
   }
 
   const chunk = new EncodedVideoChunk({
@@ -94,12 +104,13 @@ while (true) {
     data: pkt.data,
   });
   decoder.decode(chunk);
-  const videoTime = ((i % pkts.length) / pkts.length) * audio.duration;
-  const audioTime = audio.currentTime;
+  const videoTime = ((i % pkts.length) / pkts.length) * audioBuffer.duration;
+  const audioTime = getCurrentAudioTime();
   let timeout = pkt.duration;
   timeout -= audioTime - videoTime; // compensate for processing delay
   timeout = Math.max(timeout, 0); // clamp min for safety
   timeout = Math.min(timeout, 1 / 10); // clamp max just in case, like when audio loops
+  console.log({ timeout });
   await new Promise((r) => setTimeout(r, timeout * 1000));
 
   if (presses["i"]) {
