@@ -16,6 +16,17 @@ import {
   UrlSource,
 } from "mediabunny";
 
+console.log("waiting for click");
+await new Promise((r) => document.addEventListener("click", r, { once: true }));
+console.log("clicked");
+
+const audio = document.createElement("audio");
+audio.src = "/baseline/DRGQ1VtCVz9.mp4";
+audio.controls = true;
+audio.loop = true;
+audio.autoplay = true;
+document.body.append(audio);
+
 const input = new Input({
   formats: ALL_FORMATS,
   source: new UrlSource("/baseline/DRGQ1VtCVz9.mp4"),
@@ -54,20 +65,28 @@ const decoder = new VideoDecoder({
 decoder.configure(decoderConfig);
 
 let i = 0;
-let incr = 1;
+// let incr = 1;
 const presses = {} as Record<string, boolean>;
 window.addEventListener("keydown", (evt) => {
-  if (evt.key === "ArrowUp") incr += 1 / 8;
-  if (evt.key === "ArrowDown") incr -= 1 / 8;
+  // if (evt.key === "ArrowUp") incr += 1 / 8;
+  // if (evt.key === "ArrowDown") incr -= 1 / 8;
   presses[evt.key] = true;
-  console.log(incr);
+  // console.log(incr);
 });
 window.addEventListener("keyup", (evt) => {
   presses[evt.key] = false;
 });
 
 while (true) {
-  const pkt = pkts[~~i % pkts.length];
+  const pkti = ~~i % pkts.length;
+  const pkt = pkts[pkti];
+
+  const isMoshing = presses["p"] || presses["o"] || presses["u"];
+  const desiredTime = ((i % pkts.length) / pkts.length) * audio.duration;
+  if (isMoshing || pkti == 0) {
+    audio.currentTime = desiredTime;
+  }
+
   const chunk = new EncodedVideoChunk({
     type: pkt.type,
     timestamp: pkt.timestamp * 1_000_000,
@@ -75,14 +94,23 @@ while (true) {
     data: pkt.data,
   });
   decoder.decode(chunk);
-  await new Promise((r) => setTimeout(r, pkt.duration * incr * 1000));
+  const videoTime = ((i % pkts.length) / pkts.length) * audio.duration;
+  const audioTime = audio.currentTime;
+  let timeout = pkt.duration;
+  timeout -= audioTime - videoTime; // compensate for processing delay
+  timeout = Math.max(timeout, 0); // clamp min for safety
+  timeout = Math.min(timeout, 1 / 10); // clamp max just in case, like when audio loops
+  await new Promise((r) => setTimeout(r, timeout * 1000));
 
   if (presses["i"]) {
     i = 0;
   } else if (presses["p"]) {
     i += 0;
   } else if (presses["o"]) {
-    i += incr;
+    // i += incr;
+    i += 0.25;
+  } else if (presses["u"]) {
+    i = Math.random() * pkts.length;
   } else {
     i++;
   }
