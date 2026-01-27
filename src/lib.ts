@@ -8,7 +8,7 @@ import {
   UrlSource,
 } from "mediabunny";
 
-export const loadReel = async (path: string, ctx: CanvasRenderingContext2D) => {
+export const loadReel = async (path: string) => {
   const audioContext = new AudioContext();
   const audioResponse = await fetch(path);
   const audioArrayBuffer = await audioResponse.arrayBuffer();
@@ -36,8 +36,6 @@ export const loadReel = async (path: string, ctx: CanvasRenderingContext2D) => {
     return audioStartOffset + (audioContext.currentTime - audioStartTime);
   }
 
-  playAudioFrom(0);
-
   const input = new Input({
     formats: ALL_FORMATS,
     source: new UrlSource(path),
@@ -57,17 +55,6 @@ export const loadReel = async (path: string, ctx: CanvasRenderingContext2D) => {
   }
   console.log(`Collected ${pkts.length} packets`);
 
-  // Decode packets and render to canvas in real-time
-  const decoder = new VideoDecoder({
-    output: (frame) => {
-      ctx.drawImage(frame, 0, 0);
-      frame.close();
-    },
-    error: console.error,
-  });
-
-  decoder.configure(decoderConfig);
-
   const render = async (i: number, isMoshing: boolean) => {
     const pkti = ~~i % pkts.length;
     const pkt = pkts[pkti];
@@ -84,16 +71,15 @@ export const loadReel = async (path: string, ctx: CanvasRenderingContext2D) => {
       duration: pkt.duration * 1_000_000,
       data: pkt.data,
     });
-    decoder.decode(chunk);
     const videoTime = ((i % pkts.length) / pkts.length) * audioBuffer.duration;
     const audioTime = getCurrentAudioTime();
     let timeout = pkt.duration;
     timeout -= audioTime - videoTime; // compensate for processing delay
     timeout = Math.max(timeout, 0); // clamp min for safety
     timeout = Math.min(timeout, 1 / 10); // clamp max just in case, like when audio loops
-    console.log({ timeout });
-    await new Promise((r) => setTimeout(r, timeout * 1000));
+
+    return { timeout, chunk };
   };
 
-  return { render, length: pkts.length };
+  return { playAudioFrom, render, length: pkts.length, decoderConfig };
 };

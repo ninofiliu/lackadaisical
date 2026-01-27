@@ -1,1 +1,1 @@
-yt-dlp $(Get-Clipboard) --cookies-from-browser firefox -o "%(id)s.%(ext)s"
+yt-dlp $(Get-Clipboard) --cookies-from-browser firefox -o "./raw/%(id)s.%(ext)s"
