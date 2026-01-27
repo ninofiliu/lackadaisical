@@ -1,0 +1,1 @@
+yt-dlp $(Get-Clipboard) --cookies-from-browser firefox -o "%(id)s.%(ext)s"

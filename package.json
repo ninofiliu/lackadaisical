@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "mediabunny": "^1.31.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -30,6 +31,9 @@
   "pnpm": {
     "overrides": {
       "vite": "npm:rolldown-vite@7.2.5"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@swc/core"
+    ]
   }
 }
