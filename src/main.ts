@@ -15,8 +15,19 @@ document.body.append(canvas);
 const ctx = canvas.getContext("2d")!;
 
 const reels = await Promise.all([
-  loadReel("/baseline/DTzIp7okWks.mp4"),
+  // loadReel("/baseline/DO3RPmfDbil.mp4"),
+  loadReel("/baseline/DOBhidykflW.mp4"),
+  loadReel("/baseline/DQyZMfNEQcp.mp4"),
   loadReel("/baseline/DRGQ1VtCVz9.mp4"),
+  loadReel("/baseline/DS-wBdykZl3.mp4"),
+  loadReel("/baseline/DS40mFFk7r3.mp4"),
+  loadReel("/baseline/DSk0qzKDNKr.mp4"),
+  loadReel("/baseline/DSqfDyMCTHi.mp4"),
+  loadReel("/baseline/DSZZnKRjW7q.mp4"),
+  loadReel("/baseline/DT_LSrRj06G.mp4"),
+  loadReel("/baseline/DTEH6tViUOs.mp4"),
+  loadReel("/baseline/DTzFEugEw9z.mp4"),
+  loadReel("/baseline/DTzIp7okWks.mp4"),
 ]);
 
 console.log(reels);
@@ -37,7 +48,10 @@ const presses = {} as Record<string, boolean>;
 window.addEventListener("keydown", (evt) => {
   presses[evt.key] = true;
   if (evt.key === "y") {
-    reeli = (reeli + 1) % 2;
+    reels[reeli].stopAudio();
+    reeli = (reeli + 1) % reels.length;
+    i = 0;
+    reels[reeli].playAudioFrom(0);
   }
 });
 window.addEventListener("keyup", (evt) => {
@@ -51,7 +65,6 @@ while (true) {
 
   const { timeout, chunk } = await reel.render(i, isMoshing);
   decoder.decode(chunk);
-
   await new Promise((r) => setTimeout(r, timeout * 1000));
 
   if (presses["i"]) {

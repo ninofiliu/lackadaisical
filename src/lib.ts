@@ -81,5 +81,13 @@ export const loadReel = async (path: string) => {
     return { timeout, chunk };
   };
 
-  return { playAudioFrom, render, length: pkts.length, decoderConfig };
+  return {
+    stopAudio: () => {
+      audioSource?.stop();
+    },
+    playAudioFrom,
+    render,
+    length: pkts.length,
+    decoderConfig,
+  };
 };
