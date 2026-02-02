@@ -1,3 +1,17 @@
 :root {
   color-scheme: dark;
+  font-family: sans-serif;
+  font-size: 1.2rem;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+}
+canvas {
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
+}
+* {
+  box-sizing: border-box;
 }
