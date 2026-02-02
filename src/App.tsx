@@ -1,12 +1,41 @@
 import * as Icons from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { loadReel } from "./lib";
+import { loadReel, type Reel } from "./lib";
 import { x } from "./utils";
 
-const Page = ({ children }: { children: ReactNode }) => {
+const Page = ({
+  children,
+  onSlowStart,
+  onSlowEnd,
+  onFastStart,
+  onFastEnd,
+}: {
+  children: ReactNode;
+  onSlowStart: () => unknown;
+  onSlowEnd: () => unknown;
+  onFastStart: () => unknown;
+  onFastEnd: () => unknown;
+}) => {
   return (
     <>
       {children}
+      <div
+        className="panel-controls"
+        onDoubleClick={() => {
+          // TODO like
+        }}
+      >
+        <div className="slow" onMouseDown={onSlowStart} onMouseUp={onSlowEnd}>
+          <Icons.Rewind size={48} />
+        </div>
+        <div className="slow">
+          <Icons.FastForward
+            size={48}
+            onMouseDown={onFastStart}
+            onMouseUp={onFastEnd}
+          />
+        </div>
+      </div>
       <div className="overlay">
         <div className="description">
           <div className="desc-header">
@@ -46,6 +75,11 @@ const width = 1080;
 const height = 1920;
 
 export const App = () => {
+  // SHARED
+  const reelsi = useRef(0);
+  const reels = useRef<Reel[]>([]);
+  const frame = useRef(0);
+
   // INFINITE SCROLL
   const pagesRef = useRef<HTMLDivElement>(null);
   const page0 = useRef<HTMLDivElement>(null);
@@ -60,6 +94,11 @@ export const App = () => {
       const currentPage = Math.round(pages.scrollTop / pages.clientHeight);
       if (currentPage === 0 || currentPage === 2) {
         page1.current?.scrollIntoView({ behavior: "instant" });
+
+        reels.current[reelsi.current].stopAudio();
+        reelsi.current = (reelsi.current + 1) % reels.current.length;
+        frame.current = 0;
+        reels.current[reelsi.current].playAudioFrom(0);
       }
     };
 
@@ -78,11 +117,12 @@ export const App = () => {
   const canvas2 = useRef<HTMLCanvasElement>(null);
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
+  const speed = useRef<"slow" | "normal" | "fast">("normal");
 
   const start = async () => {
     setLoading(true);
 
-    const reels = await Promise.all([
+    reels.current = await Promise.all([
       // loadReel("/baseline/DO3RPmfDbil.mp4"),
       loadReel("/baseline/DOBhidykflW.mp4"),
       loadReel("/baseline/DQyZMfNEQcp.mp4"),
@@ -97,7 +137,6 @@ export const App = () => {
       loadReel("/baseline/DTzFEugEw9z.mp4"),
       loadReel("/baseline/DTzIp7okWks.mp4"),
     ]);
-    console.log("loaded reels");
 
     // Decode packets and render to canvas in real-time
     const ctx0 = x(x(canvas0.current).getContext("2d"));
@@ -114,46 +153,31 @@ export const App = () => {
       },
       error: console.error,
     });
-    decoder.configure(reels[0].decoderConfig);
-
-    let i = 0;
-    let reeli = 0;
-    const presses = {} as Record<string, boolean>;
-    window.addEventListener("keydown", (evt) => {
-      presses[evt.key] = true;
-      if (evt.key === "y") {
-        reels[reeli].stopAudio();
-        reeli = (reeli + 1) % reels.length;
-        i = 0;
-        reels[reeli].playAudioFrom(0);
-      }
-    });
-    window.addEventListener("keyup", (evt) => {
-      presses[evt.key] = false;
-    });
+    decoder.configure(reels.current[0].decoderConfig);
 
     setRunning(true);
 
-    reels[reeli].playAudioFrom(0);
+    reels.current[reelsi.current].playAudioFrom(0);
     while (true) {
-      const isMoshing = presses["p"] || presses["o"] || presses["u"];
-      const reel = reels[reeli];
+      const reel = reels.current[reelsi.current];
 
-      const { timeout, chunk } = await reel.render(i, isMoshing);
+      const { timeout, chunk } = await reel.render(
+        frame.current,
+        speed.current !== "normal",
+      );
       decoder.decode(chunk);
       await new Promise((r) => setTimeout(r, timeout * 1000));
 
-      if (presses["i"]) {
-        i = 0;
-      } else if (presses["p"]) {
-        i += 0;
-      } else if (presses["o"]) {
-        // i += incr;
-        i += 0.25;
-      } else if (presses["u"]) {
-        i = Math.random() * reel.length;
-      } else {
-        i++;
+      switch (speed.current) {
+        case "slow":
+          frame.current += 0.25;
+          break;
+        case "normal":
+          frame.current++;
+          break;
+        case "fast":
+          frame.current = Math.random() * reel.length;
+          break;
       }
     }
   };
@@ -162,17 +186,32 @@ export const App = () => {
     <>
       <div className="pages" ref={pagesRef}>
         <div className="page" ref={page0}>
-          <Page>
+          <Page
+            onSlowStart={() => (speed.current = "slow")}
+            onSlowEnd={() => (speed.current = "normal")}
+            onFastStart={() => (speed.current = "fast")}
+            onFastEnd={() => (speed.current = "normal")}
+          >
             <canvas ref={canvas0} width={width} height={height} />
           </Page>
         </div>
         <div className="page" ref={page1}>
-          <Page>
+          <Page
+            onSlowStart={() => (speed.current = "slow")}
+            onSlowEnd={() => (speed.current = "normal")}
+            onFastStart={() => (speed.current = "fast")}
+            onFastEnd={() => (speed.current = "normal")}
+          >
             <canvas ref={canvas1} width={width} height={height} />
           </Page>
         </div>
         <div className="page" ref={page2}>
-          <Page>
+          <Page
+            onSlowStart={() => (speed.current = "slow")}
+            onSlowEnd={() => (speed.current = "normal")}
+            onFastStart={() => (speed.current = "fast")}
+            onFastEnd={() => (speed.current = "normal")}
+          >
             <canvas ref={canvas2} width={width} height={height} />
           </Page>
         </div>

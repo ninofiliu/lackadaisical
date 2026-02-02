@@ -91,3 +91,5 @@ export const loadReel = async (path: string) => {
     decoderConfig,
   };
 };
+
+export type Reel = Awaited<ReturnType<typeof loadReel>>;
