@@ -1,7 +1,43 @@
-import { useEffect, useRef } from "react";
+import * as Icons from "lucide-react";
+import { useEffect, useRef, type ReactNode } from "react";
 
-const Page = () => {
-  return <>PAGE</>;
+const Page = ({ children }: { children: ReactNode }) => {
+  return (
+    <>
+      {children}
+      <div className="overlay">
+        <div className="description">
+          <div className="desc-header">
+            <img src="//placekittens.com/100/100" />
+            <span>nino.filiu</span>
+            <button>Follow</button>
+          </div>
+          <div className="desc-text">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident
+            ullam maxime commodi reiciendis. Quos mollitia tenetur officiis
+          </div>
+        </div>
+        <div className="icons">
+          <div className="icon-button">
+            <Icons.Heart size={36} strokeWidth={1} />
+            <span>3.5M</span>
+          </div>
+          <div className="icon-button">
+            <Icons.MessageCircle size={36} strokeWidth={1} />
+            <span>69K</span>
+          </div>
+          <div className="icon-button">
+            <Icons.Repeat size={36} strokeWidth={1} />
+            <span>6.7K</span>
+          </div>
+          <div className="icon-button">
+            <Icons.Send size={36} strokeWidth={1} />
+            <span>420K</span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export const App = () => {
@@ -37,13 +73,19 @@ export const App = () => {
   return (
     <div className="pages" ref={pagesRef}>
       <div className="page" ref={page0}>
-        <Page />
+        <Page>
+          <canvas />
+        </Page>
       </div>
       <div className="page" ref={page1}>
-        <Page />
+        <Page>
+          <canvas />
+        </Page>
       </div>
       <div className="page" ref={page2}>
-        <Page />
+        <Page>
+          <canvas />
+        </Page>
       </div>
     </div>
   );
