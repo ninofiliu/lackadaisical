@@ -5,17 +5,23 @@ import { x } from "./utils";
 
 const Page = ({
   children,
-  onSlowStart,
-  onSlowEnd,
-  onFastStart,
-  onFastEnd,
+  onSlow,
+  onPause,
+  onFast,
+  onReset,
 }: {
   children: ReactNode;
-  onSlowStart: () => unknown;
-  onSlowEnd: () => unknown;
-  onFastStart: () => unknown;
-  onFastEnd: () => unknown;
+  onSlow: () => unknown;
+  onPause: () => unknown;
+  onFast: () => unknown;
+  onReset: () => unknown;
 }) => {
+  const handle =
+    (handler: () => unknown) => (e: React.MouseEvent | React.TouchEvent) => {
+      e.preventDefault();
+      handler();
+    };
+
   return (
     <>
       {children}
@@ -25,15 +31,29 @@ const Page = ({
           // TODO like
         }}
       >
-        <div className="slow" onMouseDown={onSlowStart} onMouseUp={onSlowEnd}>
-          <Icons.Rewind size={48} />
+        <div
+          onMouseDown={handle(onSlow)}
+          onMouseUp={handle(onReset)}
+          onTouchStart={handle(onSlow)}
+          onTouchEnd={handle(onReset)}
+        >
+          <Icons.Rewind size={48} style={{ pointerEvents: "none" }} />
         </div>
-        <div className="slow">
-          <Icons.FastForward
-            size={48}
-            onMouseDown={onFastStart}
-            onMouseUp={onFastEnd}
-          />
+        <div
+          onMouseDown={handle(onPause)}
+          onMouseUp={handle(onReset)}
+          onTouchStart={handle(onPause)}
+          onTouchEnd={handle(onReset)}
+        >
+          <Icons.Pause size={48} style={{ pointerEvents: "none" }} />
+        </div>
+        <div
+          onMouseDown={handle(onFast)}
+          onMouseUp={handle(onReset)}
+          onTouchStart={handle(onFast)}
+          onTouchEnd={handle(onReset)}
+        >
+          <Icons.FastForward size={48} style={{ pointerEvents: "none" }} />
         </div>
       </div>
       <div className="overlay">
@@ -117,7 +137,7 @@ export const App = () => {
   const canvas2 = useRef<HTMLCanvasElement>(null);
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
-  const speed = useRef<"slow" | "normal" | "fast">("normal");
+  const speed = useRef<"normal" | "slow" | "pause" | "fast">("normal");
 
   const start = async () => {
     setLoading(true);
@@ -127,15 +147,15 @@ export const App = () => {
       loadReel("/baseline/DOBhidykflW.mp4"),
       loadReel("/baseline/DQyZMfNEQcp.mp4"),
       loadReel("/baseline/DRGQ1VtCVz9.mp4"),
-      loadReel("/baseline/DS-wBdykZl3.mp4"),
-      loadReel("/baseline/DS40mFFk7r3.mp4"),
-      loadReel("/baseline/DSk0qzKDNKr.mp4"),
-      loadReel("/baseline/DSqfDyMCTHi.mp4"),
-      loadReel("/baseline/DSZZnKRjW7q.mp4"),
-      loadReel("/baseline/DT_LSrRj06G.mp4"),
-      loadReel("/baseline/DTEH6tViUOs.mp4"),
-      loadReel("/baseline/DTzFEugEw9z.mp4"),
-      loadReel("/baseline/DTzIp7okWks.mp4"),
+      // loadReel("/baseline/DS-wBdykZl3.mp4"),
+      // loadReel("/baseline/DS40mFFk7r3.mp4"),
+      // loadReel("/baseline/DSk0qzKDNKr.mp4"),
+      // loadReel("/baseline/DSqfDyMCTHi.mp4"),
+      // loadReel("/baseline/DSZZnKRjW7q.mp4"),
+      // loadReel("/baseline/DT_LSrRj06G.mp4"),
+      // loadReel("/baseline/DTEH6tViUOs.mp4"),
+      // loadReel("/baseline/DTzFEugEw9z.mp4"),
+      // loadReel("/baseline/DTzIp7okWks.mp4"),
     ]);
 
     // Decode packets and render to canvas in real-time
@@ -169,11 +189,13 @@ export const App = () => {
       await new Promise((r) => setTimeout(r, timeout * 1000));
 
       switch (speed.current) {
+        case "normal":
+          frame.current++;
+          break;
         case "slow":
           frame.current += 0.25;
           break;
-        case "normal":
-          frame.current++;
+        case "pause":
           break;
         case "fast":
           frame.current = Math.random() * reel.length;
@@ -187,30 +209,30 @@ export const App = () => {
       <div className="pages" ref={pagesRef}>
         <div className="page" ref={page0}>
           <Page
-            onSlowStart={() => (speed.current = "slow")}
-            onSlowEnd={() => (speed.current = "normal")}
-            onFastStart={() => (speed.current = "fast")}
-            onFastEnd={() => (speed.current = "normal")}
+            onSlow={() => (speed.current = "slow")}
+            onPause={() => (speed.current = "pause")}
+            onFast={() => (speed.current = "fast")}
+            onReset={() => (speed.current = "normal")}
           >
             <canvas ref={canvas0} width={width} height={height} />
           </Page>
         </div>
         <div className="page" ref={page1}>
           <Page
-            onSlowStart={() => (speed.current = "slow")}
-            onSlowEnd={() => (speed.current = "normal")}
-            onFastStart={() => (speed.current = "fast")}
-            onFastEnd={() => (speed.current = "normal")}
+            onSlow={() => (speed.current = "slow")}
+            onPause={() => (speed.current = "pause")}
+            onFast={() => (speed.current = "fast")}
+            onReset={() => (speed.current = "normal")}
           >
             <canvas ref={canvas1} width={width} height={height} />
           </Page>
         </div>
         <div className="page" ref={page2}>
           <Page
-            onSlowStart={() => (speed.current = "slow")}
-            onSlowEnd={() => (speed.current = "normal")}
-            onFastStart={() => (speed.current = "fast")}
-            onFastEnd={() => (speed.current = "normal")}
+            onSlow={() => (speed.current = "slow")}
+            onPause={() => (speed.current = "pause")}
+            onFast={() => (speed.current = "fast")}
+            onReset={() => (speed.current = "normal")}
           >
             <canvas ref={canvas2} width={width} height={height} />
           </Page>
