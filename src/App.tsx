@@ -37,7 +37,7 @@ const Page = ({
           onTouchStart={handle(onSlow)}
           onTouchEnd={handle(onReset)}
         >
-          <Icons.Rewind size={48} style={{ pointerEvents: "none" }} />
+          <Icons.Rewind size={36} strokeWidth={1} />
         </div>
         <div
           onMouseDown={handle(onPause)}
@@ -45,7 +45,7 @@ const Page = ({
           onTouchStart={handle(onPause)}
           onTouchEnd={handle(onReset)}
         >
-          <Icons.Pause size={48} style={{ pointerEvents: "none" }} />
+          <Icons.Pause size={36} strokeWidth={1} />
         </div>
         <div
           onMouseDown={handle(onFast)}
@@ -53,7 +53,7 @@ const Page = ({
           onTouchStart={handle(onFast)}
           onTouchEnd={handle(onReset)}
         >
-          <Icons.FastForward size={48} style={{ pointerEvents: "none" }} />
+          <Icons.FastForward size={36} strokeWidth={1} />
         </div>
       </div>
       <div className="overlay">
