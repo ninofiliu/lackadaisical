@@ -113,12 +113,14 @@ export const App = () => {
     const handleScroll = () => {
       const currentPage = Math.round(pages.scrollTop / pages.clientHeight);
       if (currentPage === 0 || currentPage === 2) {
-        page1.current?.scrollIntoView({ behavior: "instant" });
-
         reels.current[reelsi.current].stopAudio();
-        reelsi.current = (reelsi.current + 1) % reels.current.length;
+        reelsi.current =
+          (reelsi.current + (currentPage - 1) + reels.current.length) %
+          reels.current.length;
         frame.current = 0;
         reels.current[reelsi.current].playAudioFrom(0);
+
+        page1.current?.scrollIntoView({ behavior: "instant" });
       }
     };
 
