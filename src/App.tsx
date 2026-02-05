@@ -143,19 +143,30 @@ export const App = () => {
     setLoading(true);
 
     reels.current = await Promise.all([
-      // loadReel("/baseline/DO3RPmfDbil.mp4"),
+      loadReel("/baseline/DFnAbH3Nce7.mp4"),
+      loadReel("/baseline/DM3UF3zx7Ja.mp4"),
+      loadReel("/baseline/DMyczT-Nuc0.mp4"),
+      loadReel("/baseline/DNIUnsNAZav.mp4"),
+      loadReel("/baseline/DO3RPmfDbil.mp4"),
       loadReel("/baseline/DOBhidykflW.mp4"),
+      loadReel("/baseline/DQAbcyDDK0a.mp4"),
+      loadReel("/baseline/DQfTOJ2jFnW.mp4"),
+      loadReel("/baseline/DQwHMK4D34o.mp4"),
       loadReel("/baseline/DQyZMfNEQcp.mp4"),
       loadReel("/baseline/DRGQ1VtCVz9.mp4"),
-      // loadReel("/baseline/DS-wBdykZl3.mp4"),
-      // loadReel("/baseline/DS40mFFk7r3.mp4"),
-      // loadReel("/baseline/DSk0qzKDNKr.mp4"),
-      // loadReel("/baseline/DSqfDyMCTHi.mp4"),
-      // loadReel("/baseline/DSZZnKRjW7q.mp4"),
-      // loadReel("/baseline/DT_LSrRj06G.mp4"),
-      // loadReel("/baseline/DTEH6tViUOs.mp4"),
-      // loadReel("/baseline/DTzFEugEw9z.mp4"),
-      // loadReel("/baseline/DTzIp7okWks.mp4"),
+      loadReel("/baseline/DRU2yKrAIZS.mp4"),
+      loadReel("/baseline/DS-wBdykZl3.mp4"),
+      loadReel("/baseline/DS40mFFk7r3.mp4"),
+      loadReel("/baseline/DSGadQPkeMe.mp4"),
+      loadReel("/baseline/DSk0qzKDNKr.mp4"),
+      loadReel("/baseline/DSqfDyMCTHi.mp4"),
+      loadReel("/baseline/DSZZnKRjW7q.mp4"),
+      loadReel("/baseline/DT_FBv6gZ_f.mp4"),
+      loadReel("/baseline/DT_LSrRj06G.mp4"),
+      loadReel("/baseline/DTEH6tViUOs.mp4"),
+      loadReel("/baseline/DTOZV9ElVcA.mp4"),
+      loadReel("/baseline/DTZ2ZEjjBeF.mp4"),
+      loadReel("/baseline/DTzFEugEw9z.mp4"),
     ]);
 
     // Decode packets and render to canvas in real-time
@@ -240,9 +251,16 @@ export const App = () => {
       </div>
       {!running && (
         <div className="start-overlay">
+          {/* 
+          need an actual audio play on ios to start
           <button disabled={loading} onClick={start}>
             Start
-          </button>
+          </button> */}
+          <audio
+            src="/baseline/DO3RPmfDbil.mp4"
+            controls={!loading}
+            onPlay={start}
+          />
         </div>
       )}
     </>
