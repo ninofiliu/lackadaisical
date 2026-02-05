@@ -271,12 +271,7 @@ export const App = () => {
             Start
           </button> */}
             <p>{msg}</p>
-            <audio
-              src="/baseline/DO3RPmfDbil.mp4"
-              controls={!loading}
-              onPlay={start}
-              loop
-            />
+            <audio src="/birds.mp3" controls={!loading} onPlay={start} loop />
           </div>
         </div>
       )}
