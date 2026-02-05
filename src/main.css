@@ -96,6 +96,15 @@ button:hover {
   align-items: center;
   display: flex;
 }
+.start-overlay > div {
+  display: flex;
+  background-color: white;
+  border-radius: 8px;
+  flex-direction: column;
+  color: black;
+  padding: 8px;
+  gap: 8px;
+}
 .panel-controls {
   position: absolute;
   inset: 0;

@@ -140,36 +140,47 @@ export const App = () => {
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
   const speed = useRef<"normal" | "slow" | "pause" | "fast">("normal");
+  const [msg, setMsg] = useState("Press play to start");
 
   const start = async () => {
     setLoading(true);
+    setMsg("Fetching...");
 
-    reels.current = await Promise.all([
-      loadReel("/baseline/DFnAbH3Nce7.mp4"),
-      loadReel("/baseline/DM3UF3zx7Ja.mp4"),
-      loadReel("/baseline/DMyczT-Nuc0.mp4"),
-      loadReel("/baseline/DNIUnsNAZav.mp4"),
-      loadReel("/baseline/DO3RPmfDbil.mp4"),
-      loadReel("/baseline/DOBhidykflW.mp4"),
-      loadReel("/baseline/DQAbcyDDK0a.mp4"),
-      loadReel("/baseline/DQfTOJ2jFnW.mp4"),
-      loadReel("/baseline/DQwHMK4D34o.mp4"),
-      loadReel("/baseline/DQyZMfNEQcp.mp4"),
-      loadReel("/baseline/DRGQ1VtCVz9.mp4"),
-      loadReel("/baseline/DRU2yKrAIZS.mp4"),
-      loadReel("/baseline/DS-wBdykZl3.mp4"),
-      loadReel("/baseline/DS40mFFk7r3.mp4"),
-      loadReel("/baseline/DSGadQPkeMe.mp4"),
-      loadReel("/baseline/DSk0qzKDNKr.mp4"),
-      loadReel("/baseline/DSqfDyMCTHi.mp4"),
-      loadReel("/baseline/DSZZnKRjW7q.mp4"),
-      loadReel("/baseline/DT_FBv6gZ_f.mp4"),
-      loadReel("/baseline/DT_LSrRj06G.mp4"),
-      loadReel("/baseline/DTEH6tViUOs.mp4"),
-      loadReel("/baseline/DTOZV9ElVcA.mp4"),
-      loadReel("/baseline/DTZ2ZEjjBeF.mp4"),
-      loadReel("/baseline/DTzFEugEw9z.mp4"),
-    ]);
+    let loaded = 0;
+    reels.current = await Promise.all(
+      [
+        loadReel("/baseline/DFnAbH3Nce7.mp4"),
+        loadReel("/baseline/DM3UF3zx7Ja.mp4"),
+        loadReel("/baseline/DMyczT-Nuc0.mp4"),
+        loadReel("/baseline/DNIUnsNAZav.mp4"),
+        loadReel("/baseline/DO3RPmfDbil.mp4"),
+        loadReel("/baseline/DOBhidykflW.mp4"),
+        loadReel("/baseline/DQAbcyDDK0a.mp4"),
+        loadReel("/baseline/DQfTOJ2jFnW.mp4"),
+        loadReel("/baseline/DQwHMK4D34o.mp4"),
+        loadReel("/baseline/DQyZMfNEQcp.mp4"),
+        loadReel("/baseline/DRGQ1VtCVz9.mp4"),
+        loadReel("/baseline/DRU2yKrAIZS.mp4"),
+        loadReel("/baseline/DS-wBdykZl3.mp4"),
+        loadReel("/baseline/DS40mFFk7r3.mp4"),
+        loadReel("/baseline/DSGadQPkeMe.mp4"),
+        loadReel("/baseline/DSk0qzKDNKr.mp4"),
+        loadReel("/baseline/DSqfDyMCTHi.mp4"),
+        loadReel("/baseline/DSZZnKRjW7q.mp4"),
+        loadReel("/baseline/DT_FBv6gZ_f.mp4"),
+        loadReel("/baseline/DT_LSrRj06G.mp4"),
+        loadReel("/baseline/DTEH6tViUOs.mp4"),
+        loadReel("/baseline/DTOZV9ElVcA.mp4"),
+        loadReel("/baseline/DTZ2ZEjjBeF.mp4"),
+        loadReel("/baseline/DTzFEugEw9z.mp4"),
+      ].map(async (p, _i, arr) => {
+        const resolved = await p;
+        setMsg(`loaded ${loaded}/${arr.length} reels`);
+        loaded++;
+        await new Promise((r) => requestAnimationFrame(r));
+        return resolved;
+      }),
+    );
 
     // Decode packets and render to canvas in real-time
     const ctx0 = x(x(canvas0.current).getContext("2d"));
@@ -253,16 +264,20 @@ export const App = () => {
       </div>
       {!running && (
         <div className="start-overlay">
-          {/* 
+          <div>
+            {/* 
           need an actual audio play on ios to start
           <button disabled={loading} onClick={start}>
             Start
           </button> */}
-          <audio
-            src="/baseline/DO3RPmfDbil.mp4"
-            controls={!loading}
-            onPlay={start}
-          />
+            <p>{msg}</p>
+            <audio
+              src="/baseline/DO3RPmfDbil.mp4"
+              controls={!loading}
+              onPlay={start}
+              loop
+            />
+          </div>
         </div>
       )}
     </>
